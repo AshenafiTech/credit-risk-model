@@ -1,1 +1,13 @@
-# credit-risk-model
+## Credit Scoring Business Understanding
+
+### Basel II Accord and the Need for Interpretability
+
+The Basel II Accord emphasizes the importance of measuring, managing, and disclosing credit risk in a transparent and consistent way. Banks and financial institutions are required to justify and explain how risk measures, including credit scores, are produced and validated. Therefore, our credit scoring models must be interpretable, auditable, and well-documented. An interpretable model helps risk managers, auditors, and regulators trace and understand the decision logic behind credit approvals and denials. This transparency is essential not only for regulatory compliance but also for maintaining customer trust and mitigating operational risk in case of disputes or audits.
+
+### Why a Proxy for Default Is Necessary and Its Risks
+
+In many datasets, a direct “default” indicator (such as a legal default filing or formal charge-off status) is not available. To build a supervised machine learning model, we must therefore define a proxy variable, for example, serious payment delinquency beyond a specific threshold (e.g., 90+ days past due). This proxy variable acts as a stand-in for default so that the model can learn to distinguish risky from safe borrowers. However, relying on a proxy introduces important business risks. If the proxy does not truly represent default behavior, the model may misclassify customers, leading to inappropriate lending decisions, biased risk segmentation, and even regulatory or reputational harm. These mistakes could result in higher loan losses, customer dissatisfaction, and non-compliance with consumer protection laws.
+
+### Trade-offs Between Interpretable and Complex Models
+
+A central trade-off exists between using simple, interpretable models such as Logistic Regression with Weight of Evidence (WoE) encoding and more complex, high-performance models like Gradient Boosting Machines (GBM). Interpretable models offer clear decision rules, ease of validation, lower implementation complexity, and stronger alignment with regulatory expectations. They make it easier to explain to stakeholders and customers why a credit decision was made. However, their predictive performance might be somewhat limited. Conversely, complex models can capture non-linear relationships and interactions to improve predictive accuracy, but they can be harder to explain, validate, and govern. In regulated financial environments, the model must be not only accurate but also fair, transparent, and explainable. Striking the right balance between interpretability and performance is key to supporting business objectives while fulfilling legal and ethical responsibilities.
