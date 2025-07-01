@@ -1,0 +1,5 @@
+scikit-learn
+mlflow
+pytest
+pandas
+numpy
