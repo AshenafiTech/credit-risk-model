@@ -3,3 +3,6 @@ mlflow
 pytest
 pandas
 numpy
+fastapi
+uvicorn
+flake8
