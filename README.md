@@ -1,13 +1,154 @@
-## Credit Scoring Business Understanding
+# Credit Scoring Model - Bati Bank Buy-Now-Pay-Later Service
 
-### Basel II Accord and the Need for Interpretability
+## Project Overview
 
-The Basel II Accord emphasizes the importance of measuring, managing, and disclosing credit risk in a transparent and consistent way. Banks and financial institutions are required to justify and explain how risk measures, including credit scores, are produced and validated. Therefore, our credit scoring models must be interpretable, auditable, and well-documented. An interpretable model helps risk managers, auditors, and regulators trace and understand the decision logic behind credit approvals and denials. This transparency is essential not only for regulatory compliance but also for maintaining customer trust and mitigating operational risk in case of disputes or audits.
+Bati Bank, a leading financial service provider with over 10 years of experience, is partnering with a successful eCommerce company to enable a buy-now-pay-later service. This project develops a Credit Scoring Model that transforms customer behavioral data into predictive risk signals using Recency, Frequency, and Monetary (RFM) patterns.
 
-### Why a Proxy for Default Is Necessary and Its Risks
+## Business Context
 
-In many datasets, a direct “default” indicator (such as a legal default filing or formal charge-off status) is not available. To build a supervised machine learning model, we must therefore define a proxy variable, for example, serious payment delinquency beyond a specific threshold (e.g., 90+ days past due). This proxy variable acts as a stand-in for default so that the model can learn to distinguish risky from safe borrowers. However, relying on a proxy introduces important business risks. If the proxy does not truly represent default behavior, the model may misclassify customers, leading to inappropriate lending decisions, biased risk segmentation, and even regulatory or reputational harm. These mistakes could result in higher loan losses, customer dissatisfaction, and non-compliance with consumer protection laws.
+### Basel II Accord and Regulatory Compliance
 
-### Trade-offs Between Interpretable and Complex Models
+The Basel II Accord emphasizes transparent and consistent credit risk measurement. Our models must be interpretable, auditable, and well-documented to support regulatory compliance, customer trust, and operational risk mitigation.
 
-A central trade-off exists between using simple, interpretable models such as Logistic Regression with Weight of Evidence (WoE) encoding and more complex, high-performance models like Gradient Boosting Machines (GBM). Interpretable models offer clear decision rules, ease of validation, lower implementation complexity, and stronger alignment with regulatory expectations. They make it easier to explain to stakeholders and customers why a credit decision was made. However, their predictive performance might be somewhat limited. Conversely, complex models can capture non-linear relationships and interactions to improve predictive accuracy, but they can be harder to explain, validate, and govern. In regulated financial environments, the model must be not only accurate but also fair, transparent, and explainable. Striking the right balance between interpretability and performance is key to supporting business objectives while fulfilling legal and ethical responsibilities.
+### RFM-Based Risk Proxy
+
+Since direct default indicators are often unavailable, we engineer a proxy for credit risk using customer behavioral patterns. This approach transforms eCommerce transaction data into meaningful risk signals while acknowledging the inherent risks of proxy-based modeling.
+
+### Model Interpretability vs Performance
+
+We balance interpretable models (Logistic Regression with WoE encoding) against complex models (Gradient Boosting) to meet both regulatory requirements and predictive accuracy needs.
+
+## Technical Architecture
+
+### Core Components
+- **Data Processing**: RFM feature engineering and proxy target creation
+- **Model Training**: Multi-algorithm comparison with hyperparameter tuning
+- **API Service**: FastAPI-based prediction endpoint
+- **MLOps**: MLflow for experiment tracking and model registry
+- **CI/CD**: Automated testing and deployment pipeline
+
+### Technology Stack
+- **ML Framework**: scikit-learn
+- **Experiment Tracking**: MLflow
+- **API**: FastAPI + Uvicorn
+- **Testing**: pytest
+- **Linting**: flake8
+- **Containerization**: Docker
+- **CI/CD**: GitHub Actions
+
+## Project Structure
+
+```
+credit-risk-model/
+├── src/
+│   ├── api/                    # FastAPI service
+│   ├── data_processing.py      # RFM feature engineering
+│   ├── proxy_target.py         # Risk proxy creation
+│   ├── train_model.py          # Model training & tuning
+│   └── predict.py              # Prediction utilities
+├── notebooks/
+│   └── 1.0-eda.ipynb          # Exploratory data analysis
+├── tests/                      # Unit tests
+├── .github/workflows/          # CI/CD pipelines
+└── docker-compose.yml          # Container orchestration
+```
+
+## Quick Start
+
+### Installation
+```bash
+pip install -r requirements.txt
+```
+
+### Training Models
+```python
+from src.train_model import train_and_evaluate
+
+# Load your processed data
+X, y = load_processed_data()
+best_model = train_and_evaluate(X, y, experiment_name='credit-risk-v1')
+```
+
+### Running API Service
+```bash
+# Using Docker
+docker-compose up
+
+# Or directly
+uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+```
+
+### Making Predictions
+```bash
+curl -X POST "http://localhost:8000/predict" \
+     -H "Content-Type: application/json" \
+     -d '{"data": [feature_values]}'
+```
+
+## Model Development Workflow
+
+1. **Data Exploration**: Analyze customer transaction patterns
+2. **Feature Engineering**: Create RFM features and risk proxies
+3. **Model Training**: Compare algorithms with hyperparameter tuning
+4. **Model Selection**: Choose best performing model via cross-validation
+5. **Model Registry**: Register production model in MLflow
+6. **API Deployment**: Serve model via FastAPI endpoint
+7. **Monitoring**: Track model performance and drift
+
+## Key Features
+
+- **Advanced scikit-learn Usage**: Custom pipelines and transformers
+- **Feature Engineering**: RFM analysis and behavioral pattern extraction
+- **Model Comparison**: Automated evaluation of multiple algorithms
+- **Hyperparameter Tuning**: Grid and randomized search optimization
+- **MLOps Integration**: MLflow experiment tracking and model registry
+- **Production API**: FastAPI service with Pydantic validation
+- **CI/CD Pipeline**: Automated testing and deployment
+- **Unit Testing**: Comprehensive test coverage
+- **Code Quality**: Automated linting and formatting
+
+## Model Performance Metrics
+
+- **ROC-AUC**: Primary metric for model selection
+- **Precision/Recall**: Balance false positives vs false negatives
+- **F1-Score**: Harmonic mean of precision and recall
+- **Business Metrics**: Expected loss, approval rates, profit optimization
+
+## Deployment
+
+The model is deployed as a containerized FastAPI service with:
+- Health checks and monitoring
+- Model versioning via MLflow
+- Horizontal scaling capability
+- Production-ready logging
+
+## Testing
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=src
+
+# Lint code
+flake8 src/ --max-line-length=120
+```
+
+## Contributing
+
+1. Follow PEP 8 style guidelines
+2. Write unit tests for new features
+3. Update documentation for API changes
+4. Ensure CI/CD pipeline passes
+
+## Risk Considerations
+
+- **Proxy Risk**: Model relies on behavioral proxies, not direct default data
+- **Data Drift**: Monitor for changes in customer behavior patterns
+- **Regulatory Compliance**: Ensure model interpretability for audits
+- **Bias Detection**: Regular fairness assessments across customer segments
+
+## License
+
+Proprietary - Bati Bank Internal Use Only

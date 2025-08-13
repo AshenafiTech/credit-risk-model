@@ -1,19 +1,35 @@
-from fastapi import FastAPI
-from src.api.pydantic_models import PredictRequest, PredictResponse
+from fastapi import FastAPI, HTTPException
+from src.api.models import PredictRequest, PredictResponse
+from src.models.predict import CreditRiskPredictor
+from src.utils.logging import logger
+from config.settings import settings
 import mlflow.pyfunc
-import os
 
-app = FastAPI()
+app = FastAPI(title="Credit Risk API", version="1.0.0")
 
-MODEL_NAME = os.getenv('MLFLOW_MODEL_NAME', 'CreditRiskBestModel')
-MODEL_STAGE = os.getenv('MLFLOW_MODEL_STAGE', 'Production')
+# Load model
+try:
+    model = mlflow.pyfunc.load_model(
+        model_uri=f"models:/{settings.model_name}/{settings.model_stage}"
+    )
+    predictor = CreditRiskPredictor(model)
+    logger.info(f"Loaded model: {settings.model_name}")
+except Exception as e:
+    logger.error(f"Failed to load model: {e}")
+    model = None
 
-# Load model from MLflow Model Registry
-model = mlflow.pyfunc.load_model(model_uri=f"models:/{MODEL_NAME}/{MODEL_STAGE}")
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "model_loaded": model is not None}
 
-@app.post('/predict', response_model=PredictResponse)
+@app.post("/predict", response_model=PredictResponse)
 def predict(request: PredictRequest):
-    # The input should be a list of features matching the model's expected order
-    data = [request.data]
-    prob = model.predict(data)[0]
-    return PredictResponse(risk_probability=float(prob))
+    if model is None:
+        raise HTTPException(status_code=503, detail="Model not available")
+    
+    try:
+        risk_probability = predictor.predict(request.features)
+        return PredictResponse(risk_probability=risk_probability)
+    except Exception as e:
+        logger.error(f"Prediction error: {e}")
+        raise HTTPException(status_code=500, detail="Prediction failed")
